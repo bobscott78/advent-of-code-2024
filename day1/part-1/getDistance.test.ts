@@ -21,6 +21,12 @@ describe('unsorted lines', () => {
   });
 });
 
+describe('real puzzle input', () => {
+  it.skip('should return difference between the numbers', async () => {
+    expect(await getDistance("./puzzle-input.txt")).toBe(1722302);
+  });
+});
+
 async function getDistance(filename: string): Promise<number> {
   const filePath = path.join(__dirname, filename);
   const first: number[] = [];
