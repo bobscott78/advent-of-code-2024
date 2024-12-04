@@ -45,6 +45,10 @@ describe('safe from file', () => {
   it('counts safe reports', async () => {
     expect(await safeFromFile('./puzzle-input-sample.txt')).toBe(2);
   });
+
+  it.skip('counts safe reports from puzzle input', async () => {
+    expect(await safeFromFile('./puzzle-input.txt')).toBe(0);
+  });
 });
 
 
