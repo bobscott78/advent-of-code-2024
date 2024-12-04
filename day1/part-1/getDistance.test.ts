@@ -15,11 +15,17 @@ describe('two nicely sorted lines', () => {
   });
 });
 
+describe('unsorted lines', () => {
+  it('should return difference between the numbers', async () => {
+    expect(await getDistance("./puzzle-input-3-unsorted-lines.txt")).toBe(11);
+  });
+});
 
 async function getDistance(filename: string): Promise<number> {
   const filePath = path.join(__dirname, filename);
-  let runningTotal = 0;
-  
+  const first: number[] = [];
+  const second: number[] = [];
+
   const fileStream = fs.createReadStream(filePath);
 
   const rl = readline.createInterface({
@@ -29,8 +35,16 @@ async function getDistance(filename: string): Promise<number> {
 
   for await (const line of rl) {
     const [num1, num2] = line.split(/\s+/).map(Number);
-    runningTotal += Math.abs(num1 - num2);
+    first.push(num1);
+    second.push(num2);
   }
 
+  first.sort((a, b) => a - b);
+  second.sort((a, b) => a - b);
+  
+  let runningTotal = 0;
+  for (let i = 0; i < first.length; i++) {
+    runningTotal += Math.abs(first[i] - second[i]);
+  }
   return runningTotal;
 }
