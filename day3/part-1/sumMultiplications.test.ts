@@ -14,6 +14,10 @@ describe('sumMultiplications', () => {
   it('sums the full sample', () => {
     expect(sumMultiplications("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")).toBe(161);
   });
+
+  it('has instruction to switch off multiplication', () => {
+    expect(sumMultiplications("don't()mul(2,4)%")).toBe(0);
+  });
 });
 
 describe('sumMultiplications from file', () => {
@@ -29,12 +33,16 @@ function sumMultiplicationsFromFile(filename: string): number {
 }
 
 function sumMultiplications(instructions: string): number {  
-  const regex = /mul\((\d+),(\d+)\)/g;
+  const regex = /mul\((\d+),(\d+)\)|don't\(\)/g;
   let result = 0;
+  let on = true;
   let match;
-
   while ((match = regex.exec(instructions)) !== null) {
-    result += parseInt(match[1], 10) * parseInt(match[2], 10);
+    if (match[0] === "don't()") {
+      on = false;
+    } else if (on) {
+      result += parseInt(match[1], 10) * parseInt(match[2], 10);
+    }
   }
 
   return result;
