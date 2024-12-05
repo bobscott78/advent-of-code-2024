@@ -3,27 +3,44 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 
-describe('x-mas search', () => {
+describe('get crosses', () => {
   it('should get cross at 2, 1', async () => {
     const grid = await gridFrom('./puzzle-sample.txt');
     expect(getDiagonalCross(grid, 2, 1)).toStrictEqual(['MAS', 'MAS']);
   });
+});
 
-  it('should get upright cross at 2, 1', async () => {
+describe('x-mas search', () => {
+  it('should get count x-mas', async () => {
     const grid = await gridFrom('./puzzle-sample.txt');
-    expect(getUprightCross(grid, 6, 2)).toStrictEqual(['SAM', 'MAA']);
+    let count = xmasCount(grid);
+    expect(count).toBe(9);
+  });
+
+  it.skip('should get count x-mas for puzzle', async () => {
+    const grid = await gridFrom('../part-1/puzzle-input.txt');
+    let count = xmasCount(grid);
+    expect(count).toBe(0);
   });
 });
+
+function xmasCount(grid: string[][]) {
+  let count = 0;
+  const words = ['MAS', 'SAM'];
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      const cross = getDiagonalCross(grid, x, y);
+      if (words.indexOf(cross[0]) !== -1 && words.indexOf(cross[1]) !== -1) {
+        count++;
+      }
+    }
+  }
+  return count;
+}
 
 function getDiagonalCross(grid: string[][], x: number, y: number): any {
   const word1 = getCoordinate(grid, y-1, x-1) + getCoordinate(grid, y, x) + getCoordinate(grid, y+1, x+1);
   const word2 = getCoordinate(grid, y+1, x-1) + getCoordinate(grid, y, x) + getCoordinate(grid, y-1, x+1);
-  return [word1, word2];
-}
-
-function getUprightCross(grid: string[][], x: number, y: number): any {
-  const word1 = getCoordinate(grid, y-1, x) + getCoordinate(grid, y, x) + getCoordinate(grid, y+1, x);
-  const word2 = getCoordinate(grid, y, x-1) + getCoordinate(grid, y, x) + getCoordinate(grid, y, x+1);
   return [word1, word2];
 }
 
