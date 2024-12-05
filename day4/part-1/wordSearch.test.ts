@@ -58,8 +58,10 @@ async function wordSearch(filename: string): Promise<string[]> {
   const words = new Array<string>();
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
-      const wordsAt = getWordsAt(grid, x, y);
-      words.push(...wordsAt);
+      if (grid[y][x] === 'X') {
+        const wordsAt = getWordsAt(grid, x, y);
+        words.push(...wordsAt);
+      }
     }
   }
   return words;
