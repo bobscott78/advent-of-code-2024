@@ -15,6 +15,27 @@ describe('correct order', () => {
   });
 });
 
+describe('all updates', () => {
+  it('should be valid', async () => {
+    const {rules, updates} = await parseFile('./puzzle-sample.txt');
+    const sumOfMiddles = sumOfValidMiddles(updates, rules);
+    expect(sumOfMiddles).toBe(143);
+  });
+
+  it.skip('should be valid', async () => {
+    const {rules, updates} = await parseFile('./puzzle-input.txt');
+    const sumOfMiddles = sumOfValidMiddles(updates, rules);
+    expect(sumOfMiddles).toBe(0);
+  });
+});
+
+function sumOfValidMiddles(updates: number[][], rules: Map<number, number[]>) {
+  return updates.filter(u => satisfies(rules, u)).reduce((acc, u) => {
+    const middleIndex = Math.floor(u.length / 2);
+    return acc + u[middleIndex];
+  }, 0);
+}
+
 async function parseFile(filename: string) {
   const filePath = path.join(__dirname, filename);
 
