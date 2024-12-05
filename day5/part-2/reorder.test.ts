@@ -27,10 +27,16 @@ describe('reorder', () => {
 });
 
 describe('read file', () => {
-  it('should parse the file', async () => {
+  it('should parse the samplefile', async () => {
     const {rules, updates} = await parseFile('../part-1/puzzle-sample.txt');
     const sum = sumOfInValidReorderedMiddles(updates, rules);
     expect(sum).toBe(123);
+  });
+
+  it.skip('should parse the full import file', async () => {
+    const {rules, updates} = await parseFile('../part-1/puzzle-input.txt');
+    const sum = sumOfInValidReorderedMiddles(updates, rules);
+    expect(sum).toBe(0);
   });
 });
 
