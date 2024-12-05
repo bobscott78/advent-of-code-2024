@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('sumMultiplications', () => {
   it('extracts sungle instruction', () => {
@@ -13,6 +15,18 @@ describe('sumMultiplications', () => {
     expect(sumMultiplications("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")).toBe(161);
   });
 });
+
+describe('sumMultiplications from file', () => {
+  it.skip('extracts sungle instruction', () => {
+    expect(sumMultiplicationsFromFile("./puzzle-input.txt")).toBe(0);
+  });
+});
+
+function sumMultiplicationsFromFile(filename: string): number {
+  const filePath = path.join(__dirname, filename);
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  return sumMultiplications(fileContent);
+}
 
 function sumMultiplications(instructions: string): number {  
   const regex = /mul\((\d+),(\d+)\)/g;
