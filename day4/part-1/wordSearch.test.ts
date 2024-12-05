@@ -46,6 +46,11 @@ describe('wordSearch', () => {
     const words = await wordSearch('./puzzle-sample.txt');
     expect(words.filter(word => word === 'XMAS')).toHaveLength(18);
   });
+
+  it.skip('should find all words in the puzzle', async () => {
+    const words = await wordSearch('./puzzle-input.txt');
+    expect(words.filter(word => word === 'XMAS')).toHaveLength(18);
+  });
 });
 
 async function wordSearch(filename: string): Promise<string[]> {
