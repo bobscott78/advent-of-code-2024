@@ -19,6 +19,28 @@ describe('trap guard', () => {
     expect(steps).toBe(20);
     expect(map.isAtEdge(map.position)).toBe(false);
   });
+
+  it('it should count traps places', async () => {
+    const map = new GuardMap();
+    const mapFilename = '../part-1/puzzle-sample.txt';
+    await map.loadFrom(mapFilename);
+    map.getRoute();
+    const originalRoute = map.visited;
+
+    let traps = 0;
+    for (let i = 1; i < originalRoute.length; i++) {
+      const newMap = new GuardMap();
+      await newMap.loadFrom(mapFilename);
+      const candidateObstacle = originalRoute[i].split(':')[0].split(',').map(Number) as [number, number];
+      newMap.placeObstacle(candidateObstacle);
+      newMap.getRoute();
+      if (!newMap.isAtEdge(newMap.position)) {
+        traps++;
+      }
+    }
+    
+    expect(traps).toBe(6);
+  });
 });
 
 class GuardMap {
