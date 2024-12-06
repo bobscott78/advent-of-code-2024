@@ -44,6 +44,20 @@ describe('guardRoute', () => {
     expect(map.position[1]).toBe(9);
     expect(map.visited).toHaveLength(41);
   });
+
+  it.skip('guard should eventually find the exit', async () => {
+    const map = new GuardMap();
+    await map.loadFrom('./puzzle-input.txt');
+    let step = 0;
+    let moved = true;
+    while (step < 100000 && moved) {
+      moved = map.move();
+      step++;
+    }
+    expect(map.position[0]).toBe(129);
+    expect(map.position[1]).toBe(109);
+    expect(map.visited).toHaveLength(4647);
+  });
 });
 
 class GuardMap {
