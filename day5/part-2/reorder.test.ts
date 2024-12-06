@@ -47,6 +47,7 @@ function sumOfInValidReorderedMiddles(updates: number[][], rules: Map<number, nu
     return acc + reordered[middleIndex];
   }, 0);
 }
+
 function reorderUpdate(rules: Map<number, number[]>, update: number[]) {
   update.sort((a, b) => {
     let result = -1;
