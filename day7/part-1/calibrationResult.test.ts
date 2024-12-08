@@ -22,6 +22,11 @@ describe('calibration result from file', () => {
     const result = await loadFrom('./puzzle-sample.txt');
     expect(result).toBe(3749);
   });
+
+  it('should be 281 for sample file', async () => {
+    const result = await loadFrom('./puzzle-input.txt');
+    expect(result).toBe(3749);
+  });
 });
 
 function couldBeTrue(equation: string): number {
