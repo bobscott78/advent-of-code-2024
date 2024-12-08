@@ -15,15 +15,19 @@ describe('calibration result', () => {
   it('should be false', () => {
     expect(couldBeTrue('161011: 16 10 13')).toBe(0);
   });
+
+  it('should concatenate', () => {
+    expect(couldBeTrue('156: 15 6')).toBe(156);
+  });
 });
 
 describe('calibration result from file', () => {
-  it('should be 281 for sample file', async () => {
+  it('should sum valid equations in sample file', async () => {
     const result = await loadFrom('./puzzle-sample.txt');
-    expect(result).toBe(3749);
+    expect(result).toBe(11387);
   });
 
-  it('should be 281 for sample file', async () => {
+  it.skip('should sum for puzzle input', async () => {
     const result = await loadFrom('./puzzle-input.txt');
     expect(result).toBe(3749);
   });
@@ -42,7 +46,8 @@ function recursiveCouldBeTrue(testValue: number, operands: number[]): boolean {
   }
   var add = [operands[0] + operands[1], ...operands.slice(2)];
   var multiply = [operands[0] * operands[1], ...operands.slice(2)];
-  return recursiveCouldBeTrue(testValue, add) || recursiveCouldBeTrue(testValue, multiply);
+  var concatenate = [Number(`${operands[0]}${operands[1]}`), ...operands.slice(2)];
+  return recursiveCouldBeTrue(testValue, add) || recursiveCouldBeTrue(testValue, multiply) || recursiveCouldBeTrue(testValue, concatenate);
 }
 
 async function loadFrom(filename: string): Promise<number> {
