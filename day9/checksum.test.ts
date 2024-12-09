@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
 
 describe('checksum', () => {
   it('should calculate checksum for sample', () => {
@@ -13,12 +16,24 @@ describe('checksum', () => {
   });
 
   it('should calculate checksum for sample', () => {
-    expect(calculateChecksum('2333133121414131402')).toBe(1928);
+    const blocks = loadBlocks('2333133121414131402');
+    expect(calculateChecksum(blocks)).toBe(1928);
   });
 });
 
-function calculateChecksum(input: string): number {
-  const blocks = loadBlocks(input);
+describe('load from file', () => {
+  it('should calculate checksum for puzzle', async () => {
+    const blocks = await loadFrom('./puzzle-sample.txt');
+    expect(calculateChecksum(blocks)).toBe(1928);
+  });
+
+  it.skip('should calculate checksum for full puzzle', async () => {
+    const blocks = await loadFrom('./puzzle-input.txt');
+    expect(calculateChecksum(blocks)).toBe(0);
+  });
+});
+
+function calculateChecksum(blocks: Array<number>): number {
   moveLast(blocks);
   let index = 0;
   return blocks.reduce((acc, v) => v === -1 ? acc : acc + (v * index++), 0);
@@ -29,17 +44,18 @@ function moveLast(blocks: Array<number>) {
 }
 
 function moveLastRecursive(blocks: Array<number>, start: number, end: number) {
-  const last = end;
+  let last = end;
   let free = start;
-  while (free < last && blocks[free] !== -1) {
-    free++;
+  while (free < last){
+    while (free < last && blocks[free] !== -1) {
+      free++;
+    }
+    if (free === last) {
+      return;
+    }
+    blocks[free] = blocks[last];
+    blocks[last--] = -1;
   }
-  if (free === last) {
-    return;
-  }
-  blocks[free] = blocks[last];
-  blocks[last] = -1;
-  moveLastRecursive(blocks, start, last - 1);
 }
 
 function loadBlocks(input: string): Array<number> {
@@ -66,3 +82,18 @@ function isFile(index: number) {
   return index % 2 === 0;
 }
 
+async function loadFrom(filename: string): Promise<Array<number>> {
+  const filePath = path.join(__dirname, filename);
+
+  const fileStream = fs.createReadStream(filePath);
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  })
+  ;
+  for await (const line of rl) {
+    return loadBlocks(line);
+  }
+  return [];
+}
