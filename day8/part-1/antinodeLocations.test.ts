@@ -20,6 +20,12 @@ describe('antinode locations', () => {
     expect(antinodes).toContainEqual('4,2');
     expect(antinodes).toHaveLength(14);
   });
+
+  it.skip('should calculate antinodes for puzzle input', async () => {
+    const { antennae, bounds } = await loadMap('./puzzle-input.txt');
+    const antinodes = calculateAntinodes(antennae, bounds);
+    expect(antinodes).toHaveLength(14);
+  });
 });
 
 function calculateAntinodes(antennae: Map<string, [number, number][]>, bounds: [number,number]) {
