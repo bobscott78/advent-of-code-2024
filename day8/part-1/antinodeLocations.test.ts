@@ -14,7 +14,7 @@ describe('antinode locations', () => {
     expect(antennae.get('A')).toContainEqual([9, 9]);    
   });
 
-  it('should calculate antinodes for the first pair', async () => {
+  it('should calculate antinodes for sample', async () => {
     const { antennae, bounds } = await loadMap('./puzzle-sample-1.txt');
     const antinodes = calculateAntinodes(antennae, bounds);
     expect(antinodes).toContainEqual('4,2');
@@ -28,13 +28,90 @@ describe('antinode locations', () => {
   });
 });
 
+describe('part 2 antinode calculations', () => {
+  it('should calculate antinodes for sample', async () => {
+    const { antennae, bounds } = await loadMap('./puzzle-sample-1.txt');
+    const antinodes = calculateResonantAntinodes(antennae, bounds);
+    expect(antinodes).toContainEqual('0,0');
+    expect(antinodes).toHaveLength(34);
+  });
+});
+
+describe('part 2 antinode calculations - full input', () => {
+  it.skip('should calculate antinodes for sample', async () => {
+    const { antennae, bounds } = await loadMap('./puzzle-input.txt');
+    const antinodes = calculateResonantAntinodes(antennae, bounds);
+    expect(antinodes).toHaveLength(34);
+  });
+});
+
+function calculateResonantAntinodes(antennae: Map<string, [number, number][]>, bounds: [number,number]) {
+  const result = new Set<string>();
+  Array.from(antennae.keys()).forEach((antenna) => {
+    const pairs = getAllPairs(antennae.get(antenna) || []);
+    pairs.forEach((pair) => {
+      calculateResonantAntinodesForPair(result, pair, bounds);
+    });
+  });
+  return result;
+}
+
+function calculateResonantAntinodesForPair(antinodes: Set<string>, pair: [number, number][], bounds: [number, number]) {
+  if (!isWithin(pair[0], bounds) || !isWithin(pair[1], bounds)) {
+    return;
+  }
+  pair.forEach((antinode) => {
+    if (!antinodes.has(antinode.toString())) {
+      antinodes.add(antinode.toString());
+    }
+  });
+  const diff = [pair[1][0] - pair[0][0], pair[1][1] - pair[0][1]];
+  const node0: [number, number] = [pair[0][0] - diff[0], pair[0][1] - diff[1]];
+  const node1: [number, number] = [pair[1][0] + diff[0], pair[1][1] + diff[1]];
+  calculateResonantAntinodesForPairUpwards(antinodes, [node0, pair[0]], bounds);
+  calculateResonantAntinodesForPairDownwards(antinodes, [pair[1], node1], bounds);
+}
+
+function calculateResonantAntinodesForPairDownwards(antinodes: Set<string>, pair: [number, number][], bounds: [number, number]) {
+  console.log('pair',pair);
+  if (!isWithin(pair[0], bounds) || !isWithin(pair[1], bounds)) {
+    return;
+  }
+  pair.forEach((antinode) => {
+    if (!antinodes.has(antinode.toString())) {
+      antinodes.add(antinode.toString());
+    }
+  });
+  const diff = [pair[1][0] - pair[0][0], pair[1][1] - pair[0][1]];
+  const node1: [number, number] = [pair[1][0] + diff[0], pair[1][1] + diff[1]];
+  calculateResonantAntinodesForPairDownwards(antinodes, [pair[1], node1], bounds);
+}
+
+function calculateResonantAntinodesForPairUpwards(antinodes: Set<string>, pair: [number, number][], bounds: [number, number]) {
+  if (!isWithin(pair[0], bounds) || !isWithin(pair[1], bounds)) {
+    return;
+  }
+  pair.forEach((antinode) => {
+    if (!antinodes.has(antinode.toString())) {
+      antinodes.add(antinode.toString());
+    }
+  });
+  const diff = [pair[1][0] - pair[0][0], pair[1][1] - pair[0][1]];
+  const node0: [number, number] = [pair[0][0] - diff[0], pair[0][1] - diff[1]];
+  calculateResonantAntinodesForPairUpwards(antinodes, [node0, pair[0]], bounds);
+}
+
+
+function isWithin(antinode: [number, number], bounds: [number, number]): unknown {
+  return antinode[0] >= 0 && antinode[0] < bounds[0] && antinode[1] >= 0 && antinode[1] < bounds[1];
+}
+
 function calculateAntinodes(antennae: Map<string, [number, number][]>, bounds: [number,number]) {
   const result = new Set<string>();
   Array.from(antennae.keys()).forEach((antenna) => {
     const pairs = getAllPairs(antennae.get(antenna) || []);
     pairs.forEach((pair) => {
-      let antinodes = calculateAntinodeForPair(pair);
-      antinodes = antinodes.filter((antinode) => antinode[0] >= 0 && antinode[0] < bounds[0] && antinode[1] >= 0 && antinode[1] < bounds[1]);
+      const antinodes = calculateAntinodesForPair(pair, bounds);
       antinodes.forEach((antinode) => {
         if (!result.has(antinode.toString())) {
           result.add(antinode.toString());
@@ -45,14 +122,14 @@ function calculateAntinodes(antennae: Map<string, [number, number][]>, bounds: [
   return result;
 }
 
-function calculateAntinodeForPair(pair: [number, number][]): [number, number][] {
+function calculateAntinodesForPair(pair: [number, number][], bounds: [number, number]): [number, number][] {
   const diff = [pair[1][0] - pair[0][0], pair[1][1] - pair[0][1]];
   
-  const antinode: [number, number][] = [
+  const antinodes: [number, number][] = [
     [pair[0][0] - diff[0], pair[0][1] - diff[1]],
     [pair[1][0] + diff[0], pair[1][1] + diff[1]]
   ];
-  return antinode;
+  return antinodes.filter((antinode) => antinode[0] >= 0 && antinode[0] < bounds[0] && antinode[1] >= 0 && antinode[1] < bounds[1]);
 }
 
 function getAllPairs(list: [number, number][]): [number, number][][] {
