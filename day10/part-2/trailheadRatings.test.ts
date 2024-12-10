@@ -34,7 +34,6 @@ describe('trailhead ratings', () => {
     expect(sum).toBe(227);
   });
 
-
   it('should find all routes in largest sample', async () => {
     const map = new TrailMap();
     await map.loadFrom('./puzzle-sample-4.txt');
@@ -47,6 +46,20 @@ describe('trailhead ratings', () => {
     
     expect(sum).toBe(81);
   });
+
+  it.skip('should find all route scores in full input', async () => {
+    const map = new TrailMap();
+    await map.loadFrom('../part-1/puzzle-input.txt');
+    
+    let sum = 0;
+    for (const trailhead of map.trailheads) {
+      const routes = map.routesFrom(trailhead);
+      sum += Array.from(routes.values()).reduce((a, b) => a + b, 0);
+    }
+    
+    expect(sum).toBe(81);
+  });
+
 });
 
 class TrailMap {
