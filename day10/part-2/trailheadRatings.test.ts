@@ -3,51 +3,53 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 
-describe('trailhead scores', () => {
-  it('should load map from file', async () => {
-    const map = new Map();
-    await map.loadFrom('./puzzle-sample-1.txt');
-    expect(map.location(0,0)).toBe(0);
-    expect(map.location(0,3)).toBe(9);
-  });
-
-  it('should find all trailheads', async () => {
-    const map = new Map();
-    await map.loadFrom('./puzzle-sample-larger.txt');
-    expect(map.trailheads.length).toBe(9);
-  });
-
+describe('trailhead ratings', () => {
   it('should find all routes from trailhead', async () => {
-    const map = new Map();
+    const map = new TrailMap();
+    await map.loadFrom('./puzzle-sample-1.txt');
+    const routes = map.routesFrom(map.trailheads[0]);
+    
+    expect(routes.size).toBe(1);
+    expect(routes.get('2,6')).toBe(3);
+  });
+
+  it('should find all routes for a slightly larger sample', async () => {
+    const map = new TrailMap();
     await map.loadFrom('./puzzle-sample-2.txt');
     const routes = map.routesFrom(map.trailheads[0]);
-    expect(routes.size).toBe(2);
-    expect(routes.has('0,6')).toBe(true);
-    expect(routes.has('6,6')).toBe(true);
+    
+    expect(routes.size).toBe(4);
+    const sum = Array.from(routes.values()).reduce((a, b) => a + b, 0);
+    expect(sum).toBe(13);
   });
 
   it('should find all routes in larger sample', async () => {
-    const map = new Map();
-    await map.loadFrom('./puzzle-sample-larger.txt');
-    let routeCount = 0;
-    for (const trailhead of map.trailheads) {
-      routeCount += map.routesFrom(trailhead).size;
-    }
-    expect(routeCount).toBe(36);
+    const map = new TrailMap();
+    await map.loadFrom('./puzzle-sample-3.txt');
+    
+    const routes = map.routesFrom(map.trailheads[0]);
+    
+    expect(routes.size).toBe(2);
+    const sum = Array.from(routes.values()).reduce((a, b) => a + b, 0);
+    expect(sum).toBe(227);
   });
 
-  it.skip('should find all routes in full input', async () => {
-    const map = new Map();
-    await map.loadFrom('./puzzle-input.txt');
-    let routeCount = 0;
+
+  it('should find all routes in largest sample', async () => {
+    const map = new TrailMap();
+    await map.loadFrom('./puzzle-sample-4.txt');
+    
+    let sum = 0;
     for (const trailhead of map.trailheads) {
-      routeCount += map.routesFrom(trailhead).size;
+      const routes = map.routesFrom(trailhead);
+      sum += Array.from(routes.values()).reduce((a, b) => a + b, 0);
     }
-    expect(routeCount).toBe(36);
+    
+    expect(sum).toBe(81);
   });
 });
 
-class Map {
+class TrailMap {
   private locations: Array<Array<number>> = new Array<Array<number>>();
   trailheads: Array<{x: number, y: number}> = [];
 
@@ -58,10 +60,10 @@ class Map {
     return this.locations[y][x];
   }
 
-  routesFrom(start: { x: number; y: number; }) {
+  routesFrom(start: { x: number; y: number; }) : Map<string, number> {
     const altitude = this.location(start.x, start.y);
 
-    const summits: Set<string> = new Set();
+    const summits: Map<string, number> = new Map();
 
     this.resursiveRoutes({ x: start.x - 1, y: start.y }, altitude, summits);
     this.resursiveRoutes({ x: start.x + 1, y: start.y }, altitude, summits);
@@ -71,14 +73,14 @@ class Map {
     return summits;
   }
 
-  resursiveRoutes(start: { x: number; y: number; }, previousAltitude: number, summits: Set<string>) {    
+  resursiveRoutes(start: { x: number; y: number; }, previousAltitude: number, summits: Map<string, number>) {    
     const altitude = this.location(start.x, start.y);
     
     if (altitude === previousAltitude + 1) {
       if (altitude === 9) {
-        if (!summits.has(`${start.x},${start.y}`)) {
-          summits.add(`${start.x},${start.y}`);
-        }
+        const coords = `${start.x},${start.y}`;
+          const currentCount = summits.get(coords) || 0;
+          summits.set(coords, currentCount + 1);
       } else {
         this.resursiveRoutes({ x: start.x - 1, y: start.y }, altitude, summits);
         this.resursiveRoutes({ x: start.x + 1, y: start.y }, altitude, summits);
