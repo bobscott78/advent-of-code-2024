@@ -35,6 +35,16 @@ describe('trailhead scores', () => {
     }
     expect(routeCount).toBe(36);
   });
+
+  it('should find all routes in full input', async () => {
+    const map = new Map();
+    await map.loadFrom('./puzzle-input.txt');
+    let routeCount = 0;
+    for (const trailhead of map.trailheads) {
+      routeCount += map.routesFrom(trailhead).size;
+    }
+    expect(routeCount).toBe(36);
+  });
 });
 
 class Map {
