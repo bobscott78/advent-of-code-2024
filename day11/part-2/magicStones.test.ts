@@ -20,8 +20,7 @@ function apply(stones: number[], blinks: number): number {
     const keys = Array.from(stonesAsMap.keys());
     for (const stone of keys) {
       const stonesWithThisValue = stonesAsMap.get(stone) ?? 0;
-      stonesAsMap.delete(stone);
-
+      
       const newStones = applyRules(stone);
       for (const newStone of newStones) {
         newRow.set(newStone, (newRow.get(newStone) ?? 0) + stonesWithThisValue);
