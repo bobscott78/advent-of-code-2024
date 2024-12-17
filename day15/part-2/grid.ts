@@ -45,80 +45,41 @@ class Grid {
     }
   }
 
-  private canMoveBoxVertically(location: [number, number], direction: string): boolean {
+  private moveBoxVertically(location: [number, number], direction: string, whatif: boolean = false): boolean {
     const currentBox = this.grid.get(this.coordString(location[0], location[1])) || '';
     if (currentBox === '.') {
       return true;
     }
-    
     let box: [[number, number], [number, number]];
     if (currentBox === '[') {
       box = [[location[0], location[1]], [location[0] + 1, location[1]]];
     } else {
       box = [[location[0] - 1, location[1]], [location[0], location[1]]];
     }
+    
     const destination = [this.getNext(direction, box[0]), this.getNext(direction, box[1])];
     const nextBoxes = [this.grid.get(this.coordString(destination[0][0], destination[0][1])),
       this.grid.get(this.coordString(destination[1][0], destination[1][1]))];
-    
-    
     if (nextBoxes[0] === '#' || nextBoxes[1] === '#') {
       return false;
     }
-    else if (nextBoxes[0] === '.' && nextBoxes[1] === '.') {
-      return true;
+    let moved = true;
+    if (nextBoxes[0] !== '.' || nextBoxes[1] !== '.') {
+      moved = this.moveBoxVertically(destination[0], direction, whatif) &&
+        this.moveBoxVertically(destination[1], direction, whatif);
     }
-    return this.canMoveBoxVertically(destination[0], direction)
-      && this.canMoveBoxVertically(destination[1], direction);
-  }
-
-  private moveBoxVertically(location: [number, number], direction: string) {
-    const currentBox = this.grid.get(this.coordString(location[0], location[1])) || '';
-    if (currentBox === '.') {
-      return;
-    }
-    let box: [[number, number], [number, number]];
-    if (currentBox === '[') {
-      box = [[location[0], location[1]], [location[0] + 1, location[1]]];
-    } else {
-      box = [[location[0] - 1, location[1]], [location[0], location[1]]];
-    }
-    
-    const destination = [this.getNext(direction, box[0]), this.getNext(direction, box[1])];
-    const nextBoxes = [this.grid.get(this.coordString(destination[0][0], destination[0][1])),
-      this.grid.get(this.coordString(destination[1][0], destination[1][1]))];
-    if (nextBoxes[0] === '#' || nextBoxes[1] === '#') {
-      return;
-    }
-    else if (nextBoxes[0] === '.' && nextBoxes[1] === '.') {
+    if (!whatif) {
       this.grid.set(this.coordString(box[0][0], box[0][1]), '.');
       this.grid.set(this.coordString(box[1][0], box[1][1]), '.');
       this.grid.set(this.coordString(destination[0][0], destination[0][1]), '[');
       this.grid.set(this.coordString(destination[1][0], destination[1][1]), ']');
-      return;
-    } 
-    
-    if (nextBoxes[0] === ']' && nextBoxes[1] === '[') {
-      this.moveBoxVertically(destination[0], direction);
-      this.moveBoxVertically(destination[1], direction);
-      this.grid.set(this.coordString(box[0][0], box[0][1]), '.');
-      this.grid.set(this.coordString(box[1][0], box[1][1]), '.');
-      this.grid.set(this.coordString(destination[0][0], destination[0][1]), '[');
-      this.grid.set(this.coordString(destination[1][0], destination[1][1]), ']');
-      return;
     }
-    
-    this.moveBoxVertically(destination[0], direction);
-    this.moveBoxVertically(destination[1], direction);
-    this.grid.set(this.coordString(box[0][0], box[0][1]), '.');
-    this.grid.set(this.coordString(box[1][0], box[1][1]), '.');
-    this.grid.set(this.coordString(destination[0][0], destination[0][1]), '[');
-    this.grid.set(this.coordString(destination[1][0], destination[1][1]), ']');
+    return moved;
   }
 
   private moveBox(location: [number, number], direction: string): boolean {
     if (direction === 'v' || direction === '^') {
-      if (!this.canMoveBoxVertically(location, direction)) {
+      if (!this.moveBoxVertically(location, direction, true)) {
         return false;
       }
       this.moveBoxVertically(location, direction);
