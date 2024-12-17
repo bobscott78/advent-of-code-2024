@@ -1,18 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import fs from 'fs';
-import path from 'path';
-import readline from 'readline';
 import Grid from './grid';
+import path from 'path';
+import fs from 'fs';
+import readline from 'readline';
 
-describe('gpssum', () => {
-  it('should initialise the grid and moves', async () => {
-    const {grid, moves} = await readFromFile('puzzle-sample.txt');
-    expect(grid.robot).toEqual([2, 2]);
-    expect(moves).toHaveLength(15);
+describe('doublewidth', () => {
+  it('should double the width of the grid', async () => {
+    const {grid, moves} = await readFromFile('./puzzle-sample.txt');
+    
+    expect(grid.robot[0]).toEqual(10);
+    expect(grid.robot[1]).toEqual(3);
   });
 
-  it('should move the robot up', async () => {
-    const {grid, moves} = await readFromFile('puzzle-sample.txt');
+  it('should move the robot', async () => {
+    const {grid, moves} = await readFromFile('./puzzle-sample.txt');
+
     grid.moveRobot(moves[0]);
     grid.moveRobot(moves[1]);
     grid.moveRobot(moves[2]);
@@ -24,33 +26,41 @@ describe('gpssum', () => {
     grid.moveRobot(moves[8]);
     grid.moveRobot(moves[9]);
     grid.moveRobot(moves[10]);
-    grid.moveRobot(moves[11]);
-    grid.moveRobot(moves[12]);
-    grid.moveRobot(moves[13]);
+    
+    grid.print();
 
-    expect(grid.robot).toEqual([4, 4]);
+    expect(grid.robot[0]).toEqual(5);
+    expect(grid.robot[1]).toEqual(2);
   });
 
-  it('should sum gps coords for sample', async () => {
-    const {grid, moves} = await readFromFile('puzzle-sample.txt');
+  it('should run test puzzle', async () => {
+    const {grid, moves} = await readFromFile('./puzzle-test.txt');
 
-    for (const move of moves) {
-      grid.moveRobot(move);
+    let count = 0;
+    while (count < 10) {
+      console.log('count', count, moves[count]);
+      grid.moveRobot(moves[count]);
+      grid.print();
+      count++;
     }
-    expect(grid.sumGpsCoords()).toEqual(2028);  
+    
+    grid.moveRobot(moves[count]);
+    grid.print();
+    expect(grid.robot[0]).toEqual(15);
   });
 
   it('should sum gps coords for larger sample', async () => {
-    const {grid, moves} = await readFromFile('puzzle-sample-larger.txt');
+    const {grid, moves} = await readFromFile('../part-1/puzzle-sample-larger.txt');
 
     for (const move of moves) {
       grid.moveRobot(move);
     }
-    expect(grid.sumGpsCoords()).toEqual(10092);  
+    grid.print();
+    expect(grid.sumGpsCoords()).toEqual(9021);  
   });
 
   it.skip('should sum gps coords for puzzle input', async () => {
-    const {grid, moves} = await readFromFile('puzzle-input.txt');
+    const {grid, moves} = await readFromFile('../part-1/puzzle-input.txt');
 
     for (const move of moves) {
       grid.moveRobot(move);
@@ -58,7 +68,6 @@ describe('gpssum', () => {
     expect(grid.sumGpsCoords()).toEqual(0);  
   });
 });
-
 
 async function readFromFile(filename: string): Promise<{grid: Grid, moves: string[]}>{
   const filePath = path.join(__dirname, filename);
